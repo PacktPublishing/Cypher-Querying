@@ -49,5 +49,5 @@ With the following software and hardware list you can run all code files present
 
 * Hands-On Graph Analytics with Neo4j [[Packt]](https://www.packtpub.com/product/hands-on-graph-analytics-with-neo4j/9781839212611?_ga=2.164659007.1855619319.1669697710-1347501151.1654864057) [[Amazon]](https://www.amazon.com/dp/1839212616)
 
-## Get to Know the Author(s)
+## Get to Know the Author
 **Ravindranatha Anthapu** has more than 25 years of experience in working with W3C standards and building cutting-edge technologies, including integrating speech into mobile applications in the 2000s. He is a technology enthusiast who has worked on many projects, from operating system device drivers to writing compilers for C language and modern web technologies, transitioning seamlessly and bringing experience from each of these domains and technologies to deliver successful solutions today. As a principal consultant at Neo4j today, Ravindranatha works with large enterprise customers to make sure they are able to leverage graph technologies effectively across various domains.
