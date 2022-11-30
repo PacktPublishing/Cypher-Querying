@@ -4,7 +4,7 @@
 
 This is the code repository for [ Graph Data Processing with Cypher](<Packtpub book link>?utm_source=github&utm_medium=repository&utm_campaign=<13-P ISBN>), published by Packt.
 
-**A practical guide to building graph traversal queries using the Cypher syntax on Neo4j	**
+**A practical guide to building graph traversal queries using the Cypher syntax on Neo4j**
 
 ## What is this book about?
 While it is easy to learn and understand the Cypher declarative language for querying graph databases, it can be very difficult to master it. As graph databases are becoming more mainstream, there is a dearth of content and guidance for developers to leverage database capabilities fully. This book fills the information gap by describing graph traversal patterns in a simple and readable way. This book provides a guided tour of Cypher—from understanding the syntax, building a graph data model, and loading the data into graphs to building queries and profiling the queries for best performance. It introduces APOC utilities that can augment Cypher queries to build complex queries. You’ll also be introduced to visualization tools such as Bloom to get the most out of the graph when presenting the results to the end users.
