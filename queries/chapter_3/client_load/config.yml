@@ -1,0 +1,213 @@
+server_uri: bolt://localhost:7687/
+admin_user: neo4j
+admin_pass: test
+files:
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/patients.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MERGE(p:Patient {id: row.Id})
+        SET
+            p.marital = row.MARITAL,
+            p.ssn = row.SSN,
+            p.firstName = row.FIRST,
+            p.lastName = row.LAST,
+            p.suffix = row.SUFFIX,
+            p.prefix = row.PREFIX,
+            p.city = row.CITY,
+            p.county = row.COUNTY,
+            p.location = point({latitude:toFloat(row.LAT),
+            longitude:toFloat(row.LON)}),
+            p.drivers=row.DRIVERS,
+            p.birthDate=date(row.BIRTHDATE)
+        WITH row,p
+          MERGE (r:Race {type: row.RACE})
+          MERGE (p)-[:HAS_RACE]->(r)
+        WITH row,p
+          MERGE (e:Ethnicity {type: row.ETHNICITY})
+          MERGE (p)-[:HAS_ETHNICITY]->(e)
+        WITH row,p
+          WHERE row.ZIP IS NOT NULL
+          MERGE (z:ZipCode {zip: row.ZIP})
+          MERGE (p)-[:HAS_ZIPCODE]->(z)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/encounters.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MERGE(e:Encounter {id: row.Id})
+        SET
+        e.date=datetime(row.START),
+        e.description=row.DESCRIPTION,
+        e.isEnd = false
+        FOREACH (ignore in CASE WHEN row.STOP IS NOT NULL AND row.STOP <> '' THEN [1] ELSE [] END |
+        SET e.end=datetime(row.STOP)
+        )
+        FOREACH (ignore in CASE WHEN row.CODE IS NOT NULL AND row.CODE <> '' THEN [1] ELSE [] END |
+        MERGE(s:SNOMED_CT {code:row.CODE})
+        MERGE(e)-[:OF_TYPE]->(s)
+        )
+        WITH row,e
+        CALL apoc.create.setLabels( e, [ 'Encounter', row.ENCOUNTERCLASS ] ) YIELD node
+        WITH row,e
+        MERGE(p:Patient {id: row.PATIENT})
+        MERGE (p)-[:HAS_ENCOUNTER]->(e)
+        WITH row,e
+        MERGE (provider:Provider {id:row.PROVIDER})
+        MERGE(e)-[:HAS_PROVIDER]->(provider)
+        FOREACH (ignore in CASE WHEN row.ORGANIZATION IS NOT
+        NULL AND row.ORGANIZATION <> '' THEN [1] ELSE [] END |
+        MERGE (o:Organization {id: row.ORGANIZATION})
+        MERGE (e)-[:HAS_ORGANIZATION]->(o))
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/providers.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MERGE (p:Provider {id: row.Id})
+        SET p.name=row.NAME,
+        p.gender=row.GENDER,
+        p.address = row.ADDRESS,
+        p.state = row.STATE,
+        p.location = point({latitude:toFloat(row.LAT),
+        longitude:toFloat(row.LON)})
+        WITH row,p
+        MERGE (o:Organization {id: row.ORGANIZATION})
+        MERGE(p)-[:BELONGS_TO]->(o)
+        WITH row,p
+        MERGE (s:Specialty {name: row.SPECIALITY})
+        MERGE (p)-[:HAS_SPECIALTY]->(s)
+        WITH row,p
+        WHERE row.ZIP IS NOT NULL
+        MERGE (z:ZipCode {zip: row.ZIP})
+        MERGE (p)-[:HAS_ZIPCODE]->(z)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/organizations.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MERGE (o:Organization {id: row.Id})
+          SET o.name=row.NAME,
+          o.address = row.ADDRESS,
+          o.state = row.STATE,
+          o.location = point({latitude:toFloat(row.LAT),
+                              longitude:toFloat(row.LON)})
+          WITH row,o
+            WHERE row.ZIP IS NOT NULL
+          MERGE (z:ZipCode {zip: row.ZIP})
+          MERGE (o)-[:HAS_ZIPCODE]->(z)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/medications.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MERGE (p:Patient {id:row.PATIENT})
+        MERGE (d:Drug {code:row.CODE})
+        SET d.description=row.DESCRIPTION
+        MERGE (ps:Encounter {id:row.ENCOUNTER, isEnd: false})
+        MERGE (ps)-[:HAS_DRUG]->(d)
+        MERGE (p)-[:HAS_ENCOUNTER]->(ps)
+        FOREACH( ignore in CASE WHEN row.REASONCODE IS NOT NULL AND
+        row.REASONCODE <> '' THEN [1] ELSE [] END |
+        MERGE(s:SNOMED_CT {code:row.CODE})
+        SET s:Diagnosis, s.description = row.REASONDESCRIPTION
+        MERGE (ps)-[:HAS_DIAGNOSIS]->(s)
+        )
+        WITH row,ps,p
+        WHERE row.STOP IS NOT NULL and row.STOP <> ''
+        CREATE (pe:Encounter {id:row.ENCOUNTER, date:datetime(row.
+        STOP)})
+        SET pe.isEnd=true
+        CREATE (p)-[:HAS_ENCOUNTER]->(pe)
+        CREATE (pe)-[:HAS_DRUG]->(d)
+        CREATE (ps)-[:HAS_END]->(pe)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/conditions.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MATCH (p:Patient {id:row.PATIENT})
+        MERGE (c:SNOMED_CT {code:row.CODE})
+        SET c.description=row.DESCRIPTION, c:Condition
+        MERGE (cs:Encounter {id:row.ENCOUNTER, isEnd: false})
+          ON CREATE
+          SET cs.date=datetime(row.START)
+        MERGE (p)-[:HAS_ENCOUNTER]->(cs)
+        MERGE (cs)-[:HAS_CONDITION]->(c)
+        WITH p,c,cs,row
+        WHERE row.STOP IS NOT NULL and row.STOP <> ''
+        MERGE (ce:Encounter {id:row.ENCOUNTER,
+        date:datetime(row.STOP)})
+        SET ce.isEnd=true
+        MERGE (p)-[:HAS_ENCOUNTER]->(ce)
+        MERGE (ce)-[:HAS_CONDITION]->(c)
+        MERGE (cs)-[:HAS_END]->(ce)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/procedures.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MATCH (p:Patient {id:row.PATIENT})
+        MERGE (c:SNOMED_CT {code:row.CODE})
+        SET c.description=row.DESCRIPTION, c:Procedure
+        MERGE (cs:Encounter {id:row.ENCOUNTER, isEnd: false})
+          ON CREATE
+          SET cs.date=datetime(row.START)
+        MERGE (p)-[:HAS_ENCOUNTER]->(cs)
+        MERGE (cs)-[:HAS_PROCEDURE]->(c)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/allergies.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MATCH (p:Patient {id:row.PATIENT})
+        MERGE (c:SNOMED_CT {code:row.CODE})
+        SET c.description=row.DESCRIPTION, c:Allergy
+        MERGE (cs:Encounter {id:row.ENCOUNTER, isEnd: false})
+          ON CREATE
+          SET cs.date=datetime(row.START)
+        MERGE (p)-[:HAS_ENCOUNTER]->(cs)
+        MERGE (cs)-[:ALLERGY_STARTED]->(c)
+        WITH p,c,cs,row
+        WHERE row.STOP IS NOT NULL. and row.STOP <> ''
+        MERGE (ce:Encounter {id:row.ENCOUNTER,
+        date:datetime(row.STOP)})
+        SET ce.isEnd=true
+        MERGE (p)-[:HAS_ENCOUNTER]->(ce)
+        MERGE (ce)-[:ALLERGY_ENDED]->(c)
+        MERGE (cs)-[:HAS_END]->(ce)
+
+  - url: https://raw.githubusercontent.com/PacktPublishing/Cypher-Querying/main/data/csv/careplans.csv
+    chunk_size: 2000
+    cql: |
+        WITH $dict.rows as rows UNWIND rows as row
+        MATCH (p:Patient {id:row.PATIENT})
+        MERGE (cp:CarePlan {code:row.Id})
+        MERGE (c:SNOMED_CT {code:row.CODE})
+        SET c.description=row.DESCRIPTION, c:Care
+        MERGE (cp)-[:HAS_CARE_TYPE]->(c)
+        MERGE (cs:Encounter {id:row.ENCOUNTER, isEnd: false})
+          ON CREATE
+          SET cs.date=datetime(row.START)
+        MERGE (cs)-[:HAS_CARE_TYPE]->(c)
+        MERGE (p)-[:HAS_ENCOUNTER]->(cs)
+        MERGE (cs)-[:CARE_PLAN_START]->(cp)
+        WITH p,cp,cs,row
+        WHERE row.STOP IS NOT NULL and row.STOP <> ''
+        CREATE (ce:Encounter {id:row.ENCOUNTER, date:datetime(row.STOP)})
+        SET ce.code=row.CODE, ce.isEnd=true
+        MERGE (p)-[:HAS_ENCOUNTER]->(ce)
+        MERGE (ce)-[:CARE_PLAN_END]->(cp)
+        MERGE (cs)-[:HAS_END]->(ce)
+
+
+pre_ingest:
+  - CREATE CONSTRAINT patient_id IF NOT EXISTS FOR (n:Patient) REQUIRE n.id IS UNIQUE
+  - CREATE CONSTRAINT zipcode_id IF NOT EXISTS FOR (n:ZipCode) REQUIRE n.zip IS UNIQUE
+  - CREATE CONSTRAINT race_id IF NOT EXISTS FOR (n:Race) REQUIRE n.type IS UNIQUE
+  - CREATE CONSTRAINT eth_id IF NOT EXISTS FOR (n:Ethnicity) REQUIRE n.type IS UNIQUE
+  - CREATE INDEX encounter_id IF NOT EXISTS FOR (n:Encounter) ON n.id
+  - CREATE CONSTRAINT snomed_id IF NOT EXISTS FOR (n:SNOMED_CT) REQUIRE n.code IS UNIQUE
+  - CREATE CONSTRAINT provider_id IF NOT EXISTS FOR (n:Provider) REQUIRE n.id IS UNIQUE
+  - CREATE CONSTRAINT organization_id IF NOT EXISTS FOR (n:Organization) REQUIRE n.id IS UNIQUE
+  - CREATE CONSTRAINT specialty_id IF NOT EXISTS FOR (n:Specialty) REQUIRE n.name IS UNIQUE

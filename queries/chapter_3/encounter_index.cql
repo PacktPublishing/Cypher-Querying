@@ -1,0 +1,15 @@
+CREATE INDEX encounter_id IF NOT EXISTS
+FOR (n:Encounter)
+ON n.id;
+
+CREATE CONSTRAINT snomed_id IF NOT EXISTS
+FOR (n:SNOMED_CT)
+REQUIRE n.code IS UNIQUE ;
+
+CREATE CONSTRAINT provider_id IF NOT EXISTS
+FOR (n:Provider)
+REQUIRE n.id IS UNIQUE ;
+
+CREATE CONSTRAINT organization_id IF NOT EXISTS
+FOR (n:Organization)
+REQUIRE n.id IS UNIQUE ;

@@ -1,0 +1,3 @@
+CREATE CONSTRAINT specialty_id IF NOT EXISTS
+FOR (n:Specialty)
+REQUIRE n.name IS UNIQUE
