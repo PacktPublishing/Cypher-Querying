@@ -51,3 +51,8 @@ With the following software and hardware list you can run all code files present
 
 ## Get to Know the Author
 **Ravindranatha Anthapu** has more than 25 years of experience in working with W3C standards and building cutting-edge technologies, including integrating speech into mobile applications in the 2000s. He is a technology enthusiast who has worked on many projects, from operating system device drivers to writing compilers for C language and modern web technologies, transitioning seamlessly and bringing experience from each of these domains and technologies to deliver successful solutions today. As a principal consultant at Neo4j today, Ravindranatha works with large enterprise customers to make sure they are able to leverage graph technologies effectively across various domains.
+
+### Download a free PDF
+
+ <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
+<p align="center"> <a href="https://packt.link/free-ebook/9781804611074">https://packt.link/free-ebook/9781804611074 </a> </p>
