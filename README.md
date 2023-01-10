@@ -1,8 +1,8 @@
 # Graph Data Processing with Cypher
 
-<a href="<Packtpub book link>?utm_source=github&utm_medium=repository&utm_campaign=<13-P ISBN>"><img src="https://static.packt-cdn.com/products/<13-P ISBN>/cover/smaller" alt="Graph Data Processing with Cypher" height="256px" align="right"></a>
+<a href="https://www.packtpub.com/product/graph-data-processing-with-cypher/9781804611074"><img src="https://static.packt-cdn.com/products/9781804611074/cover/smaller" alt="Graph Data Processing with Cypher" height="256px" align="right"></a>
 
-This is the code repository for [ Graph Data Processing with Cypher](<Packtpub book link>?utm_source=github&utm_medium=repository&utm_campaign=<13-P ISBN>), published by Packt.
+This is the code repository for [ Graph Data Processing with Cypher](https://www.packtpub.com/product/graph-data-processing-with-cypher/9781804611074), published by Packt.
 
 **A practical guide to building graph traversal queries using the Cypher syntax on Neo4j**
 
