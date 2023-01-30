@@ -44,15 +44,17 @@ With the following software and hardware list you can run all code files present
 | -------- | -------------------------------------------------------------------------------------| -----------------------------------|
 |  		1-12 | Neo4j Desktop and Neo4j Database Server  							                              | Windows, Mac OS X, and Linux (Any) |
 
+
 ## Errata
 
-On book pdf page 45
-The last query on the page has **='** instead of **=~** for the regex 
-
-MATCH (n:Person)-[r]->() WHERE n.name='Tom' AND type(r) **='** 'C.*' RETURN type( r ), r.since 
-Should be
-MATCH (n:Person)-[r]->() WHERE n.name='Tom' AND type(r) **=~** 'C.*' RETURN type( r ), r.since
-
+* Page 45 (Last query): **='** _should be_ **=~**
+```
+MATCH (n:Person)-[r]->() WHERE n.name='Tom' AND type(r) =' 'C.*' RETURN type( r ), r.since 
+```
+_should be_
+```
+MATCH (n:Person)-[r]->() WHERE n.name='Tom' AND type(r) =~ 'C.*' RETURN type( r ), r.since 
+```
 
 ### Related products <Other books you may enjoy>
 * Graph Machine Learning [[Packt]](https://www.packtpub.com/product/graph-machine-learning/9781800204492) [[Amazon]](https://www.amazon.com/dp/1800204493)
