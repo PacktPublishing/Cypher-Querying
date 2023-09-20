@@ -1,3 +1,11 @@
+
+### [Packt Conference : Put Generative AI to work on Oct 11-13 (Virtual)](https://packt.link/JGIEY)
+
+<b><p align='center'>[![Packt Conference](https://hub.packtpub.com/wp-content/uploads/2023/08/put-generative-ai-to-work-packt.png)](https://packt.link/JGIEY)</p></b> 
+3 Days, 20+ AI Experts, 25+ Workshops and Power Talks 
+
+Code: <b>USD75OFF</b>
+
 # Graph Data Processing with Cypher
 
 <a href="https://www.packtpub.com/product/graph-data-processing-with-cypher/9781804611074"><img src="https://static.packt-cdn.com/products/9781804611074/cover/smaller" alt="Graph Data Processing with Cypher" height="256px" align="right"></a>
