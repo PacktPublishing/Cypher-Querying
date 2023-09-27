@@ -10,7 +10,7 @@ CALL {
     MERGE (p)-[:HAS_ENCOUNTER]->(cs)
     MERGE (cs)-[:ALLERGY_STARTED]->(c)
     WITH p,c,cs,row
-      WHERE row.STOP IS NOT NULL. and row.STOP <> ''
+      WHERE row.STOP IS NOT NULL and row.STOP <> ''
     MERGE (ce:Encounter {id:row.ENCOUNTER,
                          date:datetime(row.STOP)})
     SET ce.isEnd=true
